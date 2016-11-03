@@ -6,9 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using TwitterPoster.Models;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http;
@@ -102,37 +100,7 @@ public class HomeController : Controller {
         var loginProviders = GetExternalAuthenticationSchemes().ToList();
         var properties = ConfigureExternalAuthenticationProperties(loginProviders.FirstOrDefault().AuthenticationScheme, redirectUrl);
         return Challenge(properties, "Twitter");
-    }
-
-
-    [HttpGet]
-    [AllowAnonymous]
-    public async Task<IActionResult> Caralho(string returnUrl = null, string remoteError = null)
-    {
-        const string Issuer = "https://gov.uk";
-
-        var claims = new List<Claim> {
-            new Claim(ClaimTypes.Name, "Andrew", ClaimValueTypes.String, Issuer),
-            new Claim(ClaimTypes.Surname, "Lock", ClaimValueTypes.String, Issuer),
-            new Claim(ClaimTypes.Country, "UK", ClaimValueTypes.String, Issuer),
-            new Claim("ChildhoodHero", "Ronnie James Dio", ClaimValueTypes.String)
-        };
-
-        var userIdentity = new ClaimsIdentity(claims, "Passport");
-
-        var userPrincipal = new ClaimsPrincipal(userIdentity);
-
-
-        await Context.Authentication.SignInAsync("Cookie", userPrincipal,
-            new AuthenticationProperties
-            {
-                ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
-                IsPersistent = false,
-                AllowRefresh = false
-            });       
-
-        return RedirectToAction(nameof(Index));
-    }
+    }    
 
     [HttpGet]
     [AllowAnonymous]
@@ -149,8 +117,7 @@ public class HomeController : Controller {
         if (auth == null)
         {
             return RedirectToAction(nameof(Index));
-        }               
-
+        }
 
         await Context.Authentication.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, auth.Principal,
             new AuthenticationProperties
@@ -163,15 +130,6 @@ public class HomeController : Controller {
         return RedirectToAction(nameof(Index));        
     }
 
-    private void AddErrors(IdentityResult result)
-    {
-        foreach (var error in result.Errors)
-        {
-            ModelState.AddModelError(string.Empty, error.Description);
-        }
-    }
-
-    
     public IEnumerable<AuthenticationDescription> GetExternalAuthenticationSchemes()
     {
         return Context.Authentication.GetAuthenticationSchemes().Where(d => !string.IsNullOrEmpty(d.DisplayName));

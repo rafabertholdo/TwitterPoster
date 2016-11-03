@@ -9,58 +9,51 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using TwitterPoster.Models;
 using System.Security.Claims;
-using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http;
-using System.IO;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Globalization;
-using System.Security.Cryptography;
+using Microsoft.Extensions.Configuration;
 
 [Authorize]
 public class HomeController : Controller {
         
     private readonly IHttpContextAccessor _contextAccessor;
-    /*
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUserClaimsPrincipalFactory<ApplicationUser> _claimsFactory;
-    */
+    private readonly IConfigurationRoot _config;   
     
     private HttpContext _context;
         
-    public HomeController(IHttpContextAccessor contextAccessor)
+    public HomeController(IHttpContextAccessor contextAccessor,
+    IConfigurationRoot config)
     {
-        _contextAccessor = contextAccessor;        
+        _contextAccessor = contextAccessor;
+        _config = config;        
     }    
 
-    [HttpGet]    
-    public async Task<IActionResult> Index() {
+    [HttpPost]
+    public async Task<IActionResult> Twita(TwitterViewModel model)
+    {
         if(Context.User.Identity != null && Context.User.Identity.IsAuthenticated)
         {
             var oauthToken = Context.User.Claims.Where(e => e.Type == "urn:twitter:access_token").FirstOrDefault();
             var oauthTokenSecret = Context.User.Claims.Where(e => e.Type == "urn:twitter:access_token_secret").FirstOrDefault();
 
-
-            ////karaaaaaaaaaaaaaaaaaaaalho
             HttpClient httpClient = new HttpClient();
             var url = "https://api.twitter.com/1.1/statuses/update.json";
             
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, url);
 
-            string message = "teste de mensagem";
-            var token = new OauthTwitterToken(url, message);
-            token.ConsumerKey = "RIRdczCzAhZuDRhI4rvxJ67hJ";
-            token.Token = oauthToken.Value;
-            token.ConsumerSecret = "vrVdsGjA1V3ctTD93evjh9UFr3Zci7hsJMKykhYK4uxF5yqfMp";
+            var token = new OauthTwitterToken(url, model.Message);
+            token.ConsumerKey = _config["ConsumerKey"];
+            token.ConsumerSecret = _config["ConsumerSecret"];
+            token.Token = oauthToken.Value;            
             token.TokenSecret = oauthTokenSecret.Value;
 
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("OAuth", token.ToString());
             requestMessage.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
             requestMessage.Headers.UserAgent.Add(new ProductInfoHeaderValue(new ProductHeaderValue("MyProduct", "1.0")));
-            requestMessage.Content = new StringContent(string.Format("status={0}&include_entities=1&include_rts=1", message),
+            requestMessage.Content = new StringContent(string.Format("status={0}&include_entities=1&include_rts=1", model.Message),
                         Encoding.UTF8,
                         "application/x-www-form-urlencoded");           
             
@@ -72,7 +65,11 @@ public class HomeController : Controller {
             
             ViewBag.Message = responseAsString;
         }
-        
+        return View("Index");
+    }
+
+    [HttpGet]    
+    public IActionResult Index() {
         return View();
     }
         

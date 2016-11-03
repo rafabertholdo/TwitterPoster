@@ -1,3 +1,6 @@
+@model TwitterPoster.Models.TwitterViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
 <!DOCTYPE HTML>
 <html lang="en-US">
 <head>
@@ -5,6 +8,12 @@
     <title>ASP.NET Core Website</title>
 </head>
 <body>
-    <h1>@ViewBag.Message</h1>
+    <form asp-controller="Home" asp-action="Twita" method="post">
+        <textarea data-val="true"
+            data-val-maxlength="The field Description must be a string or array type with a maximum length of &#x27;144&#x27;."
+            data-val-maxlength-max="144"
+            asp-for="Message"></textarea>
+        <button type="submit">Test</button>        
+    </form>
 </body>
 </html>

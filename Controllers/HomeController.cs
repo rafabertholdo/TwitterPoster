@@ -19,7 +19,8 @@ public class HomeController : Controller {
         
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IConfigurationRoot _config;   
-    
+    private static readonly string _url = "https://api.chucknorris.io/jokes/random";
+
     private HttpContext _context;
         
     public HomeController(IHttpContextAccessor contextAccessor,
@@ -68,7 +69,14 @@ public class HomeController : Controller {
 
     [HttpGet]    
     public IActionResult Index() {
-        return View();
+        var model = new TwitterViewModel();
+        using(var client = new HttpClient()){
+            var response = client.GetAsync(_url).Result;
+            var chuckNorris = response.Content.ReadAsAsync<ChuckNorrisFacts>().Result;
+            model.Message =  chuckNorris.value;
+        }
+
+        return View(model);
     }
         
     protected internal HttpContext Context

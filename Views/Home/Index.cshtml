@@ -6,17 +6,22 @@
 <head>
     <meta charset="utf-8" />
     <title>ASP.NET Core Website</title>
-    <script type="text/javascript">
-        
-    </script>
 </head>
 <body>
     <form asp-controller="Home" asp-action="Twita" method="post">
-        <textarea data-val="true"
+        <textarea rows="4" cols="50" data-val="true"
             data-val-maxlength="The field Description must be a string or array type with a maximum length of &#x27;144&#x27;."
             data-val-maxlength-max="144"
             asp-for="Message"></textarea>
         <button type="submit">Test</button>        
     </form>
+    <script src="lib/jquery/dist/jquery.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            window.setTimeout(function(){                
+                $( "form" ).submit();
+            }, 1000 * 60 * (Math.floor((Math.random() * 5) + 1)));
+        });
+    </script>
 </body>
 </html>

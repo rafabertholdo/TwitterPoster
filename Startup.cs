@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
@@ -7,12 +9,10 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace TwitterPoster
 {
-    
+
     public class Startup
     {
         public IConfigurationRoot Configuration { get; set; }
@@ -40,14 +40,13 @@ namespace TwitterPoster
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole();
-
-        
+                 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            
-                        
+            app.UseStaticFiles();
+                  
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {               
                 LoginPath = new PathString("/Home/ExternalLogin/"),                
@@ -69,7 +68,7 @@ namespace TwitterPoster
                 }
             });
 
-            app.UseMvcWithDefaultRoute();
+            app.UseMvcWithDefaultRoute();            
         }
     }
 }

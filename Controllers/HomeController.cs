@@ -64,7 +64,7 @@ public class HomeController : Controller {
             
             ViewBag.Message = responseAsString;
         }
-        return View("Index");
+        return Index();
     }
 
     [HttpGet]    
@@ -73,7 +73,7 @@ public class HomeController : Controller {
         using(var client = new HttpClient()){
             var response = client.GetAsync(_url).Result;
             var chuckNorris = response.Content.ReadAsAsync<ChuckNorrisFacts>().Result;
-            model.Message =  chuckNorris.value;
+            model.Message =  string.Format("{0} #ChuckNorrisFacts", chuckNorris.value);
         }
 
         return View(model);
